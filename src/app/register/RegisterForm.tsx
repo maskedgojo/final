@@ -51,41 +51,70 @@ export default function RegisterForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!validateForm()) return
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  
+  if (!validateForm()) return
 
-    setIsLoading(true)
+  setIsLoading(true)
 
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.toLowerCase().trim(),
-          password: formData.password,
-          dob: formData.dob,
-          address: formData.address.trim(),
-        }),
-      })
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name.trim(),
+        email: formData.email.toLowerCase().trim(),
+        password: formData.password,
+        dob: formData.dob,
+        address: formData.address.trim(),
+      }),
+    })
 
-      const data = await response.json()
+    const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Registration failed')
+    if (!response.ok) {
+      // Handle specific error cases
+      let errorMessage = data.error || 'Registration failed'
+      
+      if (data.missingFields) {
+        const missing = Object.entries(data.missingFields)
+          .filter(([_, value]) => value)
+          .map(([key]) => key)
+        errorMessage = `Missing required fields: ${missing.join(', ')}`
       }
-
-      toast.success('Registration successful! Please log in.')
-      router.push('/login?status=register-success')
-    } catch (error) {
-      console.error('Registration error:', error)
-      toast.error(error instanceof Error ? error.message : 'Registration failed. Please try again.')
-    } finally {
-      setIsLoading(false)
+      
+      throw new Error(errorMessage)
     }
+
+    toast.success(data.message || 'Registration successful!')
+    router.push('/login')
+  } catch (error: any) {
+    console.error('Registration error:', error)
+    
+    // Show user-friendly error message
+    let errorMessage = error.message || 'Registration failed'
+    
+    // Special handling for network errors
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage = 'Network error. Please check your connection.'
+    }
+    
+    toast.error(errorMessage)
+    
+    // Log detailed error in development
+    if (process.env.NODE_ENV === 'development') {
+      console.group('Registration Error Details')
+      console.error('Full error:', error)
+      console.log('Form data submitted:', formData)
+      console.groupEnd()
+    }
+  } finally {
+    setIsLoading(false)
   }
+}
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">

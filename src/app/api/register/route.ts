@@ -1,86 +1,101 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, dob, address } = await req.json()
+    // Parse the request body
+    const body = await req.json()
+    console.log('Registration request body:', JSON.stringify(body, null, 2))
 
-    // Server-side validation
-    if (!name?.trim() || !email?.trim() || !password || !dob || !address?.trim()) {
+    // Validate required fields
+    const { name, email, password, dob, address } = body
+    if (!name || !email || !password || !dob || !address) {
+      console.error('Missing required fields')
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { 
+          success: false,
+          error: 'All fields are required',
+          missingFields: {
+            name: !name,
+            email: !email,
+            password: !password,
+            dob: !dob,
+            address: !address
+          }
+        },
         { status: 400 }
       )
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: 'Please provide a valid email address' },
+        { success: false, error: 'Invalid email format' },
         { status: 400 }
       )
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters' },
-        { status: 400 }
-      )
-    }
-
-    const parsedDob = new Date(dob)
-    if (isNaN(parsedDob.getTime())) {
-      return NextResponse.json(
-        { error: 'Invalid date of birth format' },
-        { status: 400 }
-      )
-    }
-
-    // Case-insensitive email check for MySQL
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        email: {
-          equals: email.toLowerCase(), // Normalize to lowercase for comparison
-        }
-      }
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
     })
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Email already in use' },
+        { success: false, error: 'Email already registered' },
         { status: 409 }
       )
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12)
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10)
+    console.log('Password hashed successfully')
 
+    // Create user in database
     const user = await prisma.user.create({
       data: {
-        name: name.trim(),
-        email: email.toLowerCase(), // Store email in lowercase
+        name,
+        email,
         password: hashedPassword,
-        dob: parsedDob,
-        address: address.trim(),
+        dob: new Date(dob),
+        address
       },
       select: {
         id: true,
         name: true,
-        email: true,
-        dob: true,
-        address: true,
-        createdAt: true,
-      },
+        email: true
+      }
     })
 
+    console.log('User created successfully:', user)
     return NextResponse.json(
-      { message: 'Registration successful', user },
+      { 
+        success: true,
+        user,
+        message: 'Registration successful' 
+      },
       { status: 201 }
     )
-  } catch (err) {
-    console.error('Registration error:', err)
-    return NextResponse.json(
-      { error: 'An unexpected error occurred. Please try again.' },
-      { status: 500 }
-    )
+
+  } catch (error) {
+    console.error('Server error:', error)
+    
+    // Return detailed error in development
+    const errorResponse = {
+      success: false,
+      error: 'Internal server error',
+      ...(process.env.NODE_ENV !== 'production' && {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      })
+    }
+
+    return NextResponse.json(errorResponse, { status: 500 })
+  } finally {
+    await prisma.$disconnect()
   }
 }

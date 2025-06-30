@@ -7,11 +7,13 @@ import { toast } from 'react-hot-toast'
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -19,59 +21,99 @@ export default function LoginForm() {
     const errorParam = searchParams.get('error')
     const statusParam = searchParams.get('status')
 
+    // Handle error messages from URL params
     if (errorParam === 'CredentialsSignin') {
       toast.error('Invalid email or password')
     } else if (errorParam) {
       toast.error('Authentication failed. Please try again.')
     }
 
+    // Handle success messages from URL params
     if (statusParam === 'register-success') {
       toast.success('Registration successful! Please log in.')
-    }
-
-    if (statusParam === 'logout') {
+    } else if (statusParam === 'logout') {
       toast.success('You have been logged out successfully.')
     }
 
-    // Clean up URL params
+    // Clean up URL params after displaying messages
     if (errorParam || statusParam) {
       const cleanUrl = window.location.pathname
       window.history.replaceState(null, '', cleanUrl)
     }
   }, [searchParams])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
     
-    if (!email || !password) {
-      setError('Please fill in all fields')
-      return
-    }
-
-    setIsLoading(true)
-
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError(result.error === 'CredentialsSignin' 
-          ? 'Invalid email or password' 
-          : 'Login failed. Please try again.')
-      } else if (result?.ok) {
-        router.push('/admin')
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
-      console.error('Login error:', err)
-    } finally {
-      setIsLoading(false)
+    // Clear error when user types
+    if (errors[name as keyof typeof errors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }))
     }
   }
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {}
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = 'Password is required'
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  if (!validateForm()) return;
+
+  setIsLoading(true);
+
+  try {
+    const result = await signIn("credentials", {
+      email: formData.email.toLowerCase().trim(),
+      password: formData.password,
+      redirect: false,
+    });
+
+    console.log("SignIn result:", result); // Debugging
+
+    if (result?.error) {
+      // Handle specific error cases
+      let errorMessage = "Login failed";
+      
+      if (result.error.includes("credentials")) {
+        errorMessage = "Invalid email or password";
+      }
+      
+      toast.error(errorMessage);
+    } else if (result?.ok) {
+      // Redirect on successful login
+      toast.success("Login successful!");
+      router.push("/admin");
+    } else {
+      // Handle case where result is undefined
+      toast.error("Login failed. Please try again.");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    toast.error("An unexpected error occurred. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -100,12 +142,6 @@ export default function LoginForm() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
-          {error && (
-            <div className="mb-4 rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          )}
-
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
@@ -121,12 +157,15 @@ export default function LoginForm() {
                   type="email"
                   autoComplete="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ${errors.email ? 'ring-red-500' : 'ring-gray-300'} placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6`}
                   placeholder="you@example.com"
                 />
               </div>
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -143,14 +182,15 @@ export default function LoginForm() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md border-0 py-1.5 pl-10 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className={`block w-full rounded-md border-0 py-1.5 pl-10 pr-10 text-gray-900 ring-1 ring-inset ${errors.password ? 'ring-red-500' : 'ring-gray-300'} placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6`}
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 flex items-center pr-3"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="h-5 w-5 text-gray-400 hover:text-gray-500" aria-hidden="true" />
@@ -159,6 +199,9 @@ export default function LoginForm() {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between">
@@ -185,7 +228,7 @@ export default function LoginForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center">

@@ -1,48 +1,69 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { User, Mail, Shield, Save, Edit3 } from 'lucide-react'
+import { User, Mail, Shield, Save, Edit3, Loader2 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 
 interface UserData {
+  id: string
   name: string
   email: string
   role: string
+  lastLogin?: string
 }
 
 export default function ProfilePage() {
+  const { data: session, update } = useSession()
   const [formData, setFormData] = useState<UserData>({
+    id: '',
     name: '',
     email: '',
-    role: 'Super Admin',
+    role: 'Super Admin'
   })
   const [loading, setLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setInitialLoading(true)
-        const res = await fetch('/api/user/update-profile')
-        if (!res.ok) throw new Error('Failed to fetch user')
-        const data = await res.json()
-        setFormData({ 
-          name: data.name || '',
-          email: data.email || '',
-          role: data.role || 'Super Admin'
-        })
-      } catch (err) {
-        console.error('Error fetching user:', err)
-        toast.error('Failed to load user profile')
-      } finally {
-        setInitialLoading(false)
-      }
+    // Update the fetchUser function in your page.tsx
+const fetchUser = async () => {
+  try {
+    setInitialLoading(true)
+    const res = await fetch('/api/user/profile', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store' // Ensure fresh data
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      throw new Error(errorData.error || 'Failed to fetch user')
     }
 
-    fetchUser()
-  }, [])
+    const data = await res.json()
+    setFormData({ 
+      id: data.id || '',
+      name: data.name || '',
+      email: data.email || '',
+      role: data.role || 'User',
+      lastLogin: data.lastLogin || ''
+    })
+  } catch (err) {
+    console.error('Error fetching user:', err)
+    toast.error(err instanceof Error ? err.message : 'Failed to load profile')
+    
+    // Redirect if unauthorized
+    if (err.message.includes('authenticated')) {
+      window.location.href = '/login'
+    }
+  } finally {
+    setInitialLoading(false)
+  }
+}}, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -53,7 +74,7 @@ export default function ProfilePage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/user/update-profile', {
+      const res = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -67,24 +88,26 @@ export default function ProfilePage() {
       const result = await res.json()
 
       if (!res.ok) {
-        toast.error(result.message || 'Update failed')
-        return
+        throw new Error(result.message || 'Update failed')
       }
 
-      if (result.signOut) {
+      // Update session if email changed
+      if (formData.email !== result.user.email) {
         toast.success('Email updated. Please log in again.')
         setTimeout(() => {
-          window.location.href = '/api/auth/signout'
+          signOut({ callbackUrl: '/login' })
         }, 2000)
         return
       }
 
-      setFormData({ ...result.user, role: formData.role })
+      // Update local state and session
+      setFormData(prev => ({ ...prev, ...result.user }))
+      await update({ name: result.user.name })
       setIsEditing(false)
       toast.success('Profile updated successfully')
     } catch (err: any) {
-      console.error('Update error:', err.message)
-      toast.error('Update failed')
+      console.error('Update error:', err)
+      toast.error(err.message || 'Update failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -92,17 +115,24 @@ export default function ProfilePage() {
 
   const handleEdit = () => setIsEditing(true)
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     setIsEditing(false)
+    // Reset form to original values
+    fetchUserData()
+  }
+
+  const fetchUserData = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/user/update-profile')
+      const res = await fetch('/api/user/profile')
       if (res.ok) {
         const data = await res.json()
         setFormData({ 
+          id: data.id || '',
           name: data.name || '',
           email: data.email || '',
-          role: data.role || 'Super Admin'
+          role: data.role || 'Super Admin',
+          lastLogin: data.lastLogin || ''
         })
       }
     } catch (err) {
@@ -113,17 +143,77 @@ export default function ProfilePage() {
     }
   }
 
+  const formatLastLogin = (dateString?: string) => {
+    if (!dateString) return 'Never logged in'
+    const date = new Date(dateString)
+    return `Last login: ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`
+  }
+
   if (initialLoading) {
     return (
-      <div className="min-h-screen p-8 bg-[#F5F6FA]">
-        <div className="max-w-xl mx-auto">
-          <div className="bg-white rounded-xl p-8 border border-gray-200 shadow">
-            <p className="text-gray-700 text-base text-center">Loading user profile...</p>
+      <div className="min-h-screen p-8 bg-[#F5F6FA] flex items-center justify-center">
+        <div className="max-w-xl w-full">
+          <div className="bg-white rounded-xl p-8 border border-gray-200 shadow text-center">
+            <Loader2 className="animate-spin mx-auto h-8 w-8 text-blue-500" />
+            <p className="mt-4 text-gray-700">Loading your profile...</p>
           </div>
         </div>
       </div>
     )
   }
+
+  const [fetchAttempts, setFetchAttempts] = useState(0)
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      console.log("Fetching user profile...") // Debug log
+      setInitialLoading(true)
+      
+      const res = await fetch('/api/user/profile', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store'
+      })
+
+      console.log("Response status:", res.status) // Debug log
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to fetch user')
+      }
+
+      const data = await res.json()
+      console.log("User data received:", data) // Debug log
+      
+      setFormData({ 
+        id: data.id || '',
+        name: data.name || '',
+        email: data.email || '',
+        role: data.role || 'User',
+        lastLogin: data.lastLogin || ''
+      })
+    } catch (err) {
+      console.error('Profile fetch error:', err)
+      setFetchAttempts(prev => prev + 1)
+      
+      if (fetchAttempts < 2) {
+        toast.error('Retrying...')
+        setTimeout(fetchUser, 2000 * fetchAttempts)
+      } else {
+        toast.error(err instanceof Error ? err.message : 'Failed to load profile')
+        setInitialLoading(false)
+      }
+    } finally {
+      if (fetchAttempts >= 2) {
+        setInitialLoading(false)
+      }
+    }
+  }
+
+  fetchUser()
+}, [fetchAttempts])
 
   return (
     <div className="min-h-screen p-8 bg-[#F5F6FA]">
@@ -136,14 +226,17 @@ export default function ProfilePage() {
                 {formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-black">{formData.name || 'Loading...'}</h1>
+                <h1 className="text-xl font-semibold text-black">{formData.name}</h1>
                 <p className="flex items-center gap-2 text-sm text-gray-600">
                   <Shield size={16} /> {formData.role}
                 </p>
               </div>
             </div>
             {!isEditing && (
-              <button onClick={handleEdit} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2">
+              <button 
+                onClick={handleEdit} 
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
+              >
                 <Edit3 size={16} /> Edit Profile
               </button>
             )}
@@ -162,11 +255,17 @@ export default function ProfilePage() {
             <input
               type="text"
               name="name"
-              value={formData.name || ''}
+              value={formData.name}
               onChange={handleChange}
               disabled={!isEditing}
+              required
+              minLength={2}
               placeholder="Enter your full name"
-              className={`text-[#1A1A1A] w-full px-4 py-2 rounded-md text-sm border ${isEditing ? 'border-blue-500 bg-white' : 'border-gray-200 bg-gray-100'} outline-none`}
+              className={`w-full px-4 py-2 rounded-md text-sm border ${
+                isEditing 
+                  ? 'border-blue-500 bg-white focus:ring-2 focus:ring-blue-200' 
+                  : 'border-gray-200 bg-gray-100'
+              } outline-none transition-colors`}
             />
           </div>
 
@@ -178,11 +277,16 @@ export default function ProfilePage() {
             <input
               type="email"
               name="email"
-              value={formData.email || ''}
+              value={formData.email}
               onChange={handleChange}
               disabled={!isEditing}
+              required
               placeholder="Enter your email"
-              className={`text-[#1A1A1A] w-full px-4 py-2 rounded-md text-sm border ${isEditing ? 'border-blue-500 bg-white' : 'border-gray-200 bg-gray-100'} outline-none`}
+              className={`w-full px-4 py-2 rounded-md text-sm border ${
+                isEditing 
+                  ? 'border-blue-500 bg-white focus:ring-2 focus:ring-blue-200' 
+                  : 'border-gray-200 bg-gray-100'
+              } outline-none transition-colors`}
             />
           </div>
 
@@ -196,25 +300,34 @@ export default function ProfilePage() {
               name="role"
               value={formData.role}
               disabled
-              className="text-[#1A1A1A] w-full px-4 py-2 rounded-md text-sm border border-gray-200 bg-gray-100  outline-none"
+              className="w-full px-4 py-2 rounded-md text-sm border border-gray-200 bg-gray-100 outline-none"
             />
             <p className="text-xs text-gray-500 mt-1">Role cannot be modified. Contact admin to change roles.</p>
           </div>
 
           {isEditing && (
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-4 pt-2">
               <button
                 type="submit"
                 disabled={loading}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white text-sm font-medium ${loading ? 'bg-gray-600 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600'}`}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-white text-sm font-medium transition-colors ${
+                  loading 
+                    ? 'bg-gray-500 cursor-not-allowed' 
+                    : 'bg-emerald-500 hover:bg-emerald-600'
+                }`}
               >
-                <Save size={16} /> {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? (
+                  <Loader2 className="animate-spin h-4 w-4" />
+                ) : (
+                  <Save size={16} />
+                )}
+                {loading ? 'Saving...' : 'Save Changes'}
               </button>
               <button
                 type="button"
                 onClick={handleCancel}
                 disabled={loading}
-                className="flex-1 border border-gray-200 bg-white text-sm font-medium rounded-md px-4 py-2 hover:bg-gray-100"
+                className="flex-1 border border-gray-200 bg-white text-sm font-medium rounded-md px-4 py-2 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
@@ -227,7 +340,7 @@ export default function ProfilePage() {
           <h3 className="text-base font-semibold text-black mb-2">Account Status</h3>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-            Active • Last login: Today at 10:30 AM
+            Active • {formatLastLogin(formData.lastLogin)}
           </div>
         </div>
       </div>
