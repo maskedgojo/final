@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  name          String?
+  email         String   @unique
+  password      String
+  emailVerified DateTime? @map("email_verified")
+  createdAt     DateTime @default(now()) @map("created_at")
+  dob           DateTime @db.Date
+  address       String
+  roles         Role[]   @relation("UserRoles")
+  @@map("users")
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  permissions Json      // Changed to JSON type
+  users       User[]    @relation("UserRoles")
+  @@map("roles")
+}
+
+// REMOVED Permission model
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  category    String
+  createdAt   DateTime @default(now()) @map("created_at")
+  @@map("products")
+}

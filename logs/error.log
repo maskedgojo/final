@@ -1,0 +1,250 @@
+[2025-06-27T10:14:23.088Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
+[2025-06-27T10:20:00.907Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
+[2025-06-27T11:28:44.969Z] [ERROR] [authOptions.authorize] Login failed in authorize()
+StackTrace:
+Error: User not found
+    at Object.authorize (webpack-internal:///(rsc)/./src/lib/authOptions.ts:39:31)
+    at async Object.callback (webpack-internal:///(rsc)/./node_modules/next-auth/core/routes/callback.js:328:14)
+    at async AuthHandler (webpack-internal:///(rsc)/./node_modules/next-auth/core/index.js:260:28)
+    at async NextAuthRouteHandler (webpack-internal:///(rsc)/./node_modules/next-auth/next/index.js:57:28)
+    at async NextAuth._args$ (webpack-internal:///(rsc)/./node_modules/next-auth/next/index.js:89:16)
+    at async AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41338)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1920:28)
+    at async DevServer.renderPageComponent (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:2408:24)
+    at async DevServer.renderToResponseImpl (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:2445:32)
+    at async DevServer.pipeImpl (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1008:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\next-server.js:305:17)
+    at async DevServer.handleRequestImpl (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:900:17)
+    at async C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\dev\next-dev-server.js:371:20
+    at async Span.traceAsyncFn (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\dev\next-dev-server.js:368:24)
+    at async invokeRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\router-server.js:237:21)
+    at async handleRequest (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\router-server.js:428:24)
+    at async requestHandlerImpl (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\router-server.js:452:13)
+    at async Server.requestListener (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\start-server.js:158:13)
+email: test@mail.com
+------------------------------------------------------------
+[2025-06-27T11:34:46.839Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
+[2025-06-27T11:40:26.958Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
+[2025-06-27T11:47:17.349Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
+[2025-06-27T12:12:35.408Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
+[2025-06-27T12:37:49.655Z] [ERROR] [http://localhost:3000/api/test-error] Simulated server error
+Location: webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8
+StackTrace:
+Error: Simulated server error
+    at handler (webpack-internal:///(rsc)/./src/app/api/test-error/route.ts:8:11)
+    at eval (webpack-internal:///(rsc)/./src/lib/safeHandler.ts:14:26)
+    at AsyncLocalStorage.run (node:async_hooks:335:14)
+    at AppRouteRouteModule.do (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34191)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43872
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:169:36
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NoopTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18093)
+    at ProxyTracer.startActiveSpan (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:18854)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:103
+    at NoopContextManager.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:7062)
+    at ContextAPI.with (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\@opentelemetry\api\index.js:1:518)
+    at NextTracerImpl.trace (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\lib\trace\tracer.js:151:28)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:43733
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41457
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41414
+    at AsyncLocalStorage.run (node:async_hooks:346:14)
+    at AppRouteRouteModule.handle (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41368)
+    at async doRender (C:\Users\KIIT0001\Desktop\final\node_modules\next\dist\server\base-server.js:1518:42)
+Request Info:
+  Method: GET
+  URL: http://localhost:3000/api/test-error
+  UserAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+  IP: UNKNOWN
+------------------------------------------------------------
