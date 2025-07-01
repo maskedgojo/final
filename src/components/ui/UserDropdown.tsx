@@ -8,20 +8,33 @@ import { User, Settings, LogOut, ChevronDown } from 'lucide-react'
 export default function UserDropdown() {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-
   const { data: session } = useSession()
+
+  const [role, setRole] = useState('User')
+
   const userName = session?.user?.name || 'User'
   const userEmail = session?.user?.email || 'example@email.com'
   const userInitial = userName?.[0]?.toUpperCase() || 'U'
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
+    const fetchUserRole = async () => {
+      try {
+        const res = await fetch('/api/user/profile', {
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
+        })
+
+        if (!res.ok) throw new Error('Failed to fetch user role')
+
+        const data = await res.json()
+        setRole(data.role?.name || 'User')
+      } catch (err) {
+        console.error('Failed to fetch role:', err)
+        setRole('User')
       }
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+
+    fetchUserRole()
   }, [])
 
   return (
@@ -36,7 +49,7 @@ export default function UserDropdown() {
         </div>
         <div className="hidden sm:block text-left">
           <p className="text-sm font-medium text-gray-900">{userName}</p>
-          <p className="text-xs text-gray-500">Super Admin</p>
+          <p className="text-xs text-gray-500">{role}</p>
         </div>
         <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
           open ? 'rotate-180' : ''
@@ -85,16 +98,15 @@ export default function UserDropdown() {
 
           {/* Logout Button */}
           <button 
-  onClick={() => {
-    setOpen(false)
-    signOut({ callbackUrl: '/login?status=logout' })  // ✅ Add query param
-  }} 
-  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150"
->
-  <LogOut className="w-4 h-4" />
-  <span>Sign Out</span>
-</button>
-
+            onClick={() => {
+              setOpen(false)
+              signOut({ callbackUrl: '/login?status=logout' })
+            }} 
+            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </button>
         </div>
       )}
     </div>

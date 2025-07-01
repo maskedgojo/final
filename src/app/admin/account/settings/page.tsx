@@ -25,24 +25,41 @@ export default function SettingsPage() {
   const [user, setUser] = useState<{ name: string; email: string; role: string }>({
     name: '',
     email: '',
-    role: 'Super Admin' // Static role for now
+    role: '' // Static role for now
   })
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/user/update-profile', { cache: 'no-store' })
-        if (!res.ok) throw new Error('Failed to fetch user')
-        const data = await res.json()
-        setUser({ ...data, role: 'Super Admin' })
-      } catch (err) {
-        console.error('Error fetching user:', err)
-        toast.error('Failed to load user settings')
-      }
-    }
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      console.log("📡 Fetching user for settings...")
+      const res = await fetch('/api/user/profile', {
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+      })
 
-    fetchUser()
-  }, [])
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || 'Failed to fetch user')
+      }
+
+      const data = await res.json()
+      console.log("✅ Settings user data:", data)
+
+      setUser({
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role?.name || 'User',
+      })
+    } catch (err) {
+      console.error("❌ Settings fetch error:", err)
+      toast.error('Failed to load user data.')
+    }
+  }
+
+  fetchUser()
+}, [])
+
 
   const handleToggle = (setter: any, value: boolean) => {
     setter(!value)
