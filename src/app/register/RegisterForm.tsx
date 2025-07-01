@@ -90,7 +90,7 @@ export default function RegisterForm() {
     }
 
     toast.success(data.message || 'Registration successful!')
-    router.push('/login')
+    router.push('/login?status=register-success')
   } catch (error: any) {
     console.error('Registration error:', error)
     

@@ -1,46 +1,42 @@
-"use client"
+'use client'
 
-import { 
-  Users, 
-  ShoppingCart, 
-  DollarSign, 
-  AlertTriangle, 
-  TrendingUp, 
-  TrendingDown,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Calendar,
-  ArrowUpRight,
-  Eye
+import {
+  Users, ShoppingCart, DollarSign, AlertTriangle,
+  TrendingUp, TrendingDown, Clock, CheckCircle,
+  XCircle, Calendar, ArrowUpRight, Eye
 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { toast } from 'react-hot-toast'; 
+import { useEffect, useContext } from 'react';
+import { toast } from 'react-hot-toast';
+
+import { UserContext } from '@/context/user-context';
 
 export default function AdminHome() {
   const searchParams = useSearchParams();
+  const context = useContext(UserContext);
 
-useEffect(() => {
-  const errorParam = searchParams.get('error');
-  const statusParam = searchParams.get('status');
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    const statusParam = searchParams.get('status');
 
-  if (errorParam === '1') {
-    toast.error('Something went wrong. You’ve been redirected.');
-  }
+    if (errorParam === '1') {
+      toast.error('Something went wrong. You’ve been redirected.');
+    }
 
-  if (statusParam === 'login') {
-    toast.success('Welcome! You are now logged in.');
-  }
+    if (statusParam === 'login') {
+      toast.success('Welcome! You are now logged in.');
+    }
 
-  // 👇 Clean up the URL after showing the toast
-  if (errorParam || statusParam) {
-    const url = new URL(window.location.href);
-    url.searchParams.delete('error');
-    url.searchParams.delete('status');
-    window.history.replaceState(null, '', url.toString());
-  }
-}, [searchParams]);
+    if (errorParam || statusParam) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      url.searchParams.delete('status');
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [searchParams]);
+
+  if (!context) return <div>Loading context...</div>;
+  const { user, loading } = context;
 
   const stats = [
     {
@@ -75,7 +71,7 @@ useEffect(() => {
       icon: AlertTriangle,
       color: "amber"
     }
-  ]
+  ];
 
   const recentOrders = [
     { id: "#1023", customer: "John Doe", amount: "₹2,450", status: "completed", time: "2 mins ago" },
@@ -83,39 +79,41 @@ useEffect(() => {
     { id: "#1021", customer: "Mike Johnson", amount: "₹890", status: "failed", time: "8 mins ago" },
     { id: "#1020", customer: "Emma Davis", amount: "₹3,200", status: "completed", time: "12 mins ago" },
     { id: "#1019", customer: "Alex Chen", amount: "₹650", status: "pending", time: "15 mins ago" }
-  ]
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800'
-      case 'pending': return 'bg-amber-100 text-amber-800'
-      case 'failed': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-amber-100 text-amber-800';
+      case 'failed': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4" />
-      case 'pending': return <Clock className="w-4 h-4" />
-      case 'failed': return <XCircle className="w-4 h-4" />
-      default: return null
+      case 'completed': return <CheckCircle className="w-4 h-4" />;
+      case 'pending': return <Clock className="w-4 h-4" />;
+      case 'failed': return <XCircle className="w-4 h-4" />;
+      default: return null;
     }
-  }
+  };
 
   return (
     <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-      
+
       {/* Header Section */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome back, Admin 👋</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {loading ? 'Loading...' : `Welcome back, ${user?.name || 'Admin'} 👋`}
+            </h1>
             <p className="text-gray-600 mt-2">Here's what's happening with your platform today.</p>
           </div>
           <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
             <Calendar className="w-4 h-4" />
-            <span>June 27, 2025</span>
+            <span>{new Date().toLocaleDateString('en-IN', { dateStyle: 'long' })}</span>
           </div>
         </div>
       </div>
@@ -123,7 +121,7 @@ useEffect(() => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
-          const Icon = stat.icon
+          const Icon = stat.icon;
           return (
             <div key={index} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center justify-between mb-4">
@@ -150,7 +148,7 @@ useEffect(() => {
                 <p className="text-sm text-gray-600 mt-1">{stat.title}</p>
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
@@ -200,7 +198,7 @@ useEffect(() => {
             </button>
           </div>
         </div>
-        
+
         <div className="overflow-hidden">
           {recentOrders.map((order, index) => (
             <div key={order.id} className="p-6 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors duration-150">
@@ -232,5 +230,5 @@ useEffect(() => {
         </div>
       </div>
     </div>
-  )
+  );
 }

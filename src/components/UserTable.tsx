@@ -7,31 +7,15 @@ import { useRouter } from 'next/navigation'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import { format } from 'date-fns'
 import { ChevronDown } from 'lucide-react'
+import { useUsersContext } from '@/context/users-context'
+import { useRoleContext } from '@/context/role-context'
 
-export type User = {
-  id: number
-  name: string | null
-  email: string
-  emailVerified: Date | null
-  createdAt: Date
-  dob: Date
-  address: string
-  roles?: Role[] // Make roles optional
-}
-
-type Role = {
-  id: number
-  name: string
-  description?: string
-}
-
-type Props = {
-  users: User[]
-}
-
-export default function UserTable({ users }: Props) {
+export default function UserTable() {
   const router = useRouter()
-  const [data, setData] = useState<User[]>([])
+  const { users, loading: userLoading, error, refetchUsers } = useUsersContext()
+  const { roles: allRoles, loading: roleLoading, refreshRoles } = useRoleContext()
+
+  const [data, setData] = useState([])
   const [searchValue, setSearchValue] = useState('')
   const [form, setForm] = useState({
     name: '',
@@ -45,22 +29,7 @@ export default function UserTable({ users }: Props) {
   const [loading, setLoading] = useState(false)
   const [editMode, setEditMode] = useState<number | null>(null)
   const [isInitializing, setIsInitializing] = useState(true)
-  const [allRoles, setAllRoles] = useState<Role[]>([])
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false)
-
-  // Fetch all available roles
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.get('/api/roles')
-        setAllRoles(response.data)
-      } catch (error) {
-        toast.error('Failed to load roles')
-        console.error('Error fetching roles:', error)
-      }
-    }
-    fetchRoles()
-  }, [])
 
   useEffect(() => {
     if (users && users.length > 0) {
@@ -71,16 +40,16 @@ export default function UserTable({ users }: Props) {
 
   const filtered = useMemo(() => {
     if (!searchValue.trim()) return data
-    
+
     const searchLower = searchValue.toLowerCase()
     return data.filter((u) => {
-      const roleNames = u.roles.map(role => role.name).join(' ').toLowerCase()
+      const roleNames = (u.userRoles || []).map(ur => ur.role.name).join(' ').toLowerCase()
       return (
         (u.name?.toLowerCase() || '').includes(searchLower) ||
         u.email.toLowerCase().includes(searchLower) ||
         u.address.toLowerCase().includes(searchLower) ||
         u.id.toString().includes(searchValue) ||
-        format(u.dob, 'MM/dd/yyyy').includes(searchValue) ||
+        format(new Date(u.dob), 'MM/dd/yyyy').includes(searchValue) ||
         roleNames.includes(searchLower)
       )
     })
@@ -92,6 +61,7 @@ export default function UserTable({ users }: Props) {
         await axios.delete(`/api/users/${id}`)
         setData(data.filter(u => u.id !== id))
         toast.success('User deleted successfully')
+        refetchUsers()
       } catch (err) {
         console.error(err)
         toast.error('Delete failed')
@@ -104,7 +74,7 @@ export default function UserTable({ users }: Props) {
       toast.error('Email and password are required')
       return
     }
-    
+
     setLoading(true)
     try {
       const res = await axios.post('/api/users', {
@@ -112,9 +82,9 @@ export default function UserTable({ users }: Props) {
         dob: new Date(form.dob),
         roles: form.roles
       })
-      
-      setData([res.data, ...data])
+
       toast.success('User added successfully')
+      refetchUsers()
       resetForm()
       setShowForm(false)
     } catch (err) {
@@ -129,7 +99,7 @@ export default function UserTable({ users }: Props) {
       toast.error('Email is required')
       return
     }
-    
+
     setLoading(true)
     try {
       await axios.put(`/api/users/${id}`, {
@@ -137,22 +107,9 @@ export default function UserTable({ users }: Props) {
         dob: new Date(form.dob),
         roles: form.roles
       })
-      
-      setData(data.map(u => {
-        if (u.id === id) {
-          return {
-            ...u,
-            name: form.name,
-            email: form.email,
-            dob: new Date(form.dob),
-            address: form.address,
-            roles: allRoles.filter(role => form.roles.includes(role.id))
-          }
-        }
-        return u
-      }))
-      
+
       toast.success('User updated successfully')
+      refetchUsers()
       resetForm()
       setEditMode(null)
     } catch (err) {
@@ -162,15 +119,15 @@ export default function UserTable({ users }: Props) {
     }
   }
 
-  const startEditing = (user: User) => {
+  const startEditing = (user: any) => {
     setEditMode(user.id)
     setForm({
       name: user.name || '',
       email: user.email,
       password: '',
-      dob: format(user.dob, 'yyyy-MM-dd'),
+      dob: format(new Date(user.dob), 'yyyy-MM-dd'),
       address: user.address,
-      roles: user.roles.map(role => role.id)
+      roles: (user.userRoles || []).map(ur => ur.role.id)
     })
     setShowForm(true)
   }
@@ -202,14 +159,56 @@ export default function UserTable({ users }: Props) {
     })
   }
 
-  if (isInitializing) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-[400px]">
-        <LoadingSpinner size="lg" className="text-indigo-600" />
-        <p className="mt-4 text-gray-600">Loading users...</p>
+if (isInitializing || userLoading || roleLoading) {
+  return (
+    <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen">
+      <div className="max-w-7xl mx-auto animate-pulse">
+        <div className="bg-white rounded-xl shadow overflow-hidden">
+          <table className="min-w-full">
+            <thead className="bg-gray-100">
+              <tr>
+                {['User', 'Email', 'Roles', 'Date of Birth', 'Address', 'Created', 'Actions'].map((header) => (
+                  <th
+                    key={header}
+                    className="py-4 px-6 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-300">
+              {[...Array(6)].map((_, i) => (
+                <tr key={i} className="hover:bg-gray-50 transition">
+                  {/* User cell */}
+                  <td className="py-4 px-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="h-10 w-10 bg-gray-300 rounded-lg"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 w-28 bg-gray-300 rounded"></div>
+                        <div className="h-2 w-20 bg-gray-300 rounded"></div>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Other cells */}
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <td key={j} className="py-4 px-6">
+                      <div className="h-3 w-24 bg-gray-300 rounded"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    )
-  }
+    </div>
+  )
+}
+
+
+
 
   return (
     <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -451,14 +450,15 @@ export default function UserTable({ users }: Props) {
                   </td>
                <td className="py-4 px-6">
                   <div className="flex flex-wrap gap-1">
-                    {(user.roles || []).map(role => ( // Fallback to empty array if roles is undefined
-                      <span 
-                         key={role.id} 
-                         className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded"
-                      >
-                      {role.name}
-                      </span>
-                ))}
+                    {(user.userRoles || []).map(({ role }) => (
+  <span 
+    key={role.id} 
+    className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded"
+  >
+    {role.name}
+  </span>
+))}
+
                 </div>
               </td>
                   <td className="py-4 px-6 text-sm text-gray-500">

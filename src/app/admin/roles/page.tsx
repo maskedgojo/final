@@ -7,6 +7,7 @@ import { Save, Trash2, Edit, Plus, X } from 'lucide-react'
 
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
+import { useRoleContext } from '@/context/role-context'
 
 type Role = {
   id: number
@@ -17,9 +18,9 @@ type Role = {
 
 export default function RolesPage() {
   const { data: session } = useSession()
-  const [roles, setRoles] = useState<Role[]>([])
+  const { roles, loading, refreshRoles } = useRoleContext()
+
   const [permissions, setPermissions] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
 
   const [roleForm, setRoleForm] = useState({
     name: '',
@@ -35,24 +36,17 @@ export default function RolesPage() {
 
   useEffect(() => {
     if (!session) {
-      redirect('/signin')
+      redirect('/login')
     }
-    loadData()
+    loadPermissions()
   }, [session])
 
-  const loadData = async () => {
-    setLoading(true)
+  const loadPermissions = async () => {
     try {
-      const [rolesRes, permsRes] = await Promise.all([
-        axios.get('/api/roles'),
-        axios.get('/api/permissions')
-      ])
-      setRoles(rolesRes.data)
-      setPermissions(permsRes.data)
+      const res = await axios.get('/api/permissions')
+      setPermissions(res.data)
     } catch (e) {
-      toast.error('Failed to load data')
-    } finally {
-      setLoading(false)
+      toast.error('Failed to load permissions')
     }
   }
 
@@ -86,7 +80,7 @@ export default function RolesPage() {
         await axios.post('/api/roles', payload)
         toast.success('Role created')
       }
-      await loadData()
+      await refreshRoles()
       resetRoleForm()
     } catch (e) {
       toast.error('Operation failed')
@@ -103,7 +97,7 @@ export default function RolesPage() {
       await axios.post('/api/permissions', { name: permForm.name })
       toast.success('Permission created')
       setPermForm({ name: '' })
-      await loadData()
+      await loadPermissions()
     } catch (e) {
       toast.error('Operation failed')
     }
@@ -115,7 +109,7 @@ export default function RolesPage() {
     try {
       await axios.delete(`/api/roles?id=${id}`)
       toast.success('Role deleted')
-      await loadData()
+      await refreshRoles()
     } catch (e) {
       toast.error('Delete failed')
     }
@@ -127,7 +121,7 @@ export default function RolesPage() {
     try {
       await axios.delete(`/api/permissions?name=${encodeURIComponent(perm)}`)
       toast.success('Permission deleted')
-      await loadData()
+      await loadPermissions()
     } catch (e) {
       toast.error('Delete failed')
     }
@@ -154,13 +148,11 @@ export default function RolesPage() {
   }
 
   if (!session) {
-    return null // Redirecting, so no need to render
+    return null
   }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    
-      
       <main className="flex-1 p-4 md:p-8 transition-all duration-300">
         <div className="max-w-6xl mx-auto">
           <header className="mb-8">
@@ -169,22 +161,19 @@ export default function RolesPage() {
           </header>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Role Creation/Edit Card */}
+            {/* Role Form */}
             <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
               <div className="flex justify-between items-center mb-5">
                 <h2 className="text-xl font-bold text-gray-800">
                   {editRoleId ? 'Edit Role' : 'Create New Role'}
                 </h2>
                 {editRoleId && (
-                  <button 
-                    onClick={resetRoleForm}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
+                  <button onClick={resetRoleForm} className="text-gray-500 hover:text-gray-700 transition-colors">
                     <X size={20} />
                   </button>
                 )}
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
@@ -195,7 +184,7 @@ export default function RolesPage() {
                     onChange={e => setRoleForm({ ...roleForm, name: e.target.value })}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea
@@ -206,7 +195,7 @@ export default function RolesPage() {
                     onChange={e => setRoleForm({ ...roleForm, description: e.target.value })}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-60 overflow-y-auto p-1 border border-gray-200 rounded-lg">
@@ -226,7 +215,7 @@ export default function RolesPage() {
                     ))}
                   </div>
                 </div>
-                
+
                 <button
                   onClick={saveRole}
                   className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg flex items-center justify-center transition-colors"
@@ -237,10 +226,10 @@ export default function RolesPage() {
               </div>
             </div>
 
-            {/* Permission Management Card */}
+            {/* Permissions */}
             <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
               <h2 className="text-xl font-bold text-gray-800 mb-5">Manage Permissions</h2>
-              
+
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Create New Permission</label>
@@ -259,7 +248,7 @@ export default function RolesPage() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="font-medium text-gray-800">Available Permissions</h3>
@@ -291,7 +280,7 @@ export default function RolesPage() {
             </div>
           </div>
 
-          {/* Roles List */}
+          {/* Roles list */}
           <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-xl font-bold text-gray-800">Roles</h2>
@@ -299,7 +288,7 @@ export default function RolesPage() {
                 {roles.length} roles
               </span>
             </div>
-            
+
             {loading ? (
               <div className="flex justify-center py-10">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -331,7 +320,7 @@ export default function RolesPage() {
                             )}
                           </div>
                         </div>
-                        
+
                         <div className="mt-3">
                           <div className="text-xs font-medium text-gray-500 mb-1">PERMISSIONS</div>
                           <div className="flex flex-wrap gap-2">
@@ -349,7 +338,7 @@ export default function RolesPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex gap-2">
                         <button
                           onClick={() => startRoleEdit(role)}

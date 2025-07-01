@@ -8,7 +8,7 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id)
-    
+
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid user ID format' },
@@ -17,36 +17,18 @@ export async function DELETE(
     }
 
     // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { id }
-    })
-
+    const user = await prisma.user.findUnique({ where: { id } })
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // First disconnect all roles
-    await prisma.user.update({
-      where: { id },
-      data: {
-        roles: {
-          set: []
-        }
-      }
-    })
+    // Delete associated userRoles first
+    await prisma.userRole.deleteMany({ where: { userId: id } })
 
     // Then delete the user
-    await prisma.user.delete({
-      where: { id }
-    })
+    await prisma.user.delete({ where: { id } })
 
-    return NextResponse.json(
-      { message: 'User deleted successfully' },
-      { status: 200 }
-    )
+    return NextResponse.json({ message: 'User deleted successfully' }, { status: 200 })
   } catch (error) {
     console.error('Failed to delete user:', error)
     return NextResponse.json(
@@ -70,43 +52,65 @@ export async function PUT(
       )
     }
 
-    const body = await request.json()
+    const { name, email, password, dob, address, roles } = await request.json()
 
-    const { name, email, password, dob, address, roles } = body
-
-    // Check user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { id }
-    })
-
+    const existingUser = await prisma.user.findUnique({ where: { id } })
     if (!existingUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    let hashedPassword = undefined
-    if (password && password.trim() !== '') {
-      hashedPassword = await bcrypt.hash(password, 10)
-    }
+    // Hash new password if provided
+    const hashedPassword = password?.trim()
+      ? await bcrypt.hash(password, 10)
+      : undefined
 
-    const updatedUser = await prisma.user.update({
+    // Update user basic details
+    await prisma.user.update({
       where: { id },
       data: {
         name,
         email,
         password: hashedPassword || existingUser.password,
         dob: dob ? new Date(dob) : existingUser.dob,
-        address,
-        roles: {
-          set: roles?.map((roleId: number) => ({
-            id: roleId
-          })) || []
+        address
+      }
+    })
+
+    // Update roles through userRole table
+    if (Array.isArray(roles)) {
+      // Remove existing roles
+      await prisma.userRole.deleteMany({ where: { userId: id } })
+
+      // Add new roles
+      await prisma.userRole.createMany({
+        data: roles.map((roleId: number) => ({
+          userId: id,
+          roleId
+        })),
+        skipDuplicates: true
+      })
+    }
+
+    // Return updated user with roles
+    const updatedUser = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        dob: true,
+        address: true,
+        createdAt: true,
+        userRoles: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
         }
-      },
-      include: {
-        roles: true
       }
     })
 

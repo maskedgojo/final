@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import axios from 'axios'
+import { useRoleContext } from '@/context/role-context'
+import TableSkeleton from '@/components/ui/TableSkeleton' 
 
 type Role = {
   id: number
@@ -15,9 +16,9 @@ type Role = {
 
 export default function RoleTablePage() {
   const router = useRouter()
-  const [roles, setRoles] = useState<Role[]>([])
+  const { roles, loading, refreshRoles } = useRoleContext()
+
   const [allPermissions, setAllPermissions] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchValue, setSearchValue] = useState('')
   const [form, setForm] = useState({
     name: '',
@@ -27,22 +28,16 @@ export default function RoleTablePage() {
   const [editId, setEditId] = useState<number | null>(null)
 
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true)
+    const loadPermissions = async () => {
       try {
-        const [rolesRes, permsRes] = await Promise.all([
-          axios.get('/api/roles'),
-          axios.get('/api/permissions')
-        ])
-        setRoles(rolesRes.data)
-        setAllPermissions(permsRes.data)
+        const res = await axios.get('/api/permissions')
+        setAllPermissions(res.data)
       } catch (error) {
-        toast.error('Failed to load data')
-      } finally {
-        setLoading(false)
+        toast.error('Failed to load permissions')
       }
     }
-    loadData()
+
+    loadPermissions()
   }, [])
 
   const filteredRoles = useMemo(() => {
@@ -78,8 +73,7 @@ export default function RoleTablePage() {
         toast.success('Role created!')
       }
 
-      const rolesRes = await axios.get('/api/roles')
-      setRoles(rolesRes.data)
+      await refreshRoles()
       setForm({ name: '', description: '', selectedPermissions: [] })
       setEditId(null)
     } catch (error) {
@@ -91,8 +85,8 @@ export default function RoleTablePage() {
     if (!confirm('Are you sure you want to delete this role?')) return
     try {
       await axios.delete(`/api/roles?id=${id}`)
-      setRoles(roles.filter(r => r.id !== id))
       toast.success('Role deleted')
+      await refreshRoles()
       if (editId === id) {
         setForm({ name: '', description: '', selectedPermissions: [] })
         setEditId(null)
@@ -102,7 +96,14 @@ export default function RoleTablePage() {
     }
   }
 
-  if (loading) return <LoadingSpinner size="lg" />
+if (loading) {
+  return (
+    <div className="p-8 max-w-5xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Role Management</h1>
+      <TableSkeleton rows={6} columns={4} />
+    </div>
+  )
+}
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -198,7 +199,16 @@ export default function RoleTablePage() {
             </tr>
           </thead>
           <tbody>
-            {filteredRoles.length === 0 ? (
+            {loading ? (
+    [...Array(6)].map((_, i) => (
+      <tr key={i} className="animate-pulse border-t">
+        <td className="p-3"><div className="h-4 bg-gray-200 rounded w-3/4" /></td>
+        <td className="p-3"><div className="h-4 bg-gray-200 rounded w-4/5" /></td>
+        <td className="p-3"><div className="h-4 bg-gray-200 rounded w-1/2" /></td>
+        <td className="p-3"><div className="h-4 bg-gray-200 rounded w-2/3" /></td>
+      </tr>
+    ))
+  ) :filteredRoles.length === 0 ? (
               <tr>
                 <td colSpan={4} className="p-4 text-center text-gray-500">
                   {roles.length === 0 ? 'No roles found' : 'No matching roles found'}
