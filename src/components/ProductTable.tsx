@@ -119,7 +119,7 @@ export default function ProductTable() {
       params.set('edit', product.id.toString())
       router.replace(`?${params.toString()}`, { scroll: false })
       toast.success('Product added successfully')
-    } catch (err) {
+    } catch {
       toast.error('Add failed')
     } finally {
       setLoading(false)
@@ -139,7 +139,7 @@ export default function ProductTable() {
       params.set('edit', id.toString())
       router.replace(`?${params.toString()}`, { scroll: false })
       toast.success('Product updated successfully')
-    } catch (err) {
+    } catch {
       toast.error('Update failed')
     } finally {
       setLoading(false)
@@ -172,7 +172,7 @@ export default function ProductTable() {
       }
 
       toast.success('Product deleted successfully')
-    } catch (err) {
+    } catch {
       toast.error('Delete failed')
     }
   }

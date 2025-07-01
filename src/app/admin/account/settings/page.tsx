@@ -61,7 +61,7 @@ useEffect(() => {
 }, [])
 
 
-  const handleToggle = (setter: any, value: boolean) => {
+  const handleToggle = (setter: React.Dispatch<React.SetStateAction<boolean>>, value: boolean) => {
     setter(!value)
   }
 

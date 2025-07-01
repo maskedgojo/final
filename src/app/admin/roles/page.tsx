@@ -45,7 +45,7 @@ export default function RolesPage() {
     try {
       const res = await axios.get('/api/permissions')
       setPermissions(res.data)
-    } catch (e) {
+    } catch {
       toast.error('Failed to load permissions')
     }
   }
@@ -82,7 +82,7 @@ export default function RolesPage() {
       }
       await refreshRoles()
       resetRoleForm()
-    } catch (e) {
+    } catch {
       toast.error('Operation failed')
     }
   }
@@ -98,7 +98,7 @@ export default function RolesPage() {
       toast.success('Permission created')
       setPermForm({ name: '' })
       await loadPermissions()
-    } catch (e) {
+    } catch  {
       toast.error('Operation failed')
     }
   }
@@ -110,7 +110,7 @@ export default function RolesPage() {
       await axios.delete(`/api/roles?id=${id}`)
       toast.success('Role deleted')
       await refreshRoles()
-    } catch (e) {
+    } catch {
       toast.error('Delete failed')
     }
   }
@@ -122,7 +122,7 @@ export default function RolesPage() {
       await axios.delete(`/api/permissions?name=${encodeURIComponent(perm)}`)
       toast.success('Permission deleted')
       await loadPermissions()
-    } catch (e) {
+    } catch {
       toast.error('Delete failed')
     }
   }
@@ -133,7 +133,7 @@ export default function RolesPage() {
       name: role.name,
       description: role.description || '',
       permissions: Object.entries(role.permissions)
-        .filter(([_, enabled]) => enabled)
+        .filter(([, enabled]) => enabled)
         .map(([perm]) => perm)
     })
   }
@@ -324,7 +324,7 @@ export default function RolesPage() {
                         <div className="mt-3">
                           <div className="text-xs font-medium text-gray-500 mb-1">PERMISSIONS</div>
                           <div className="flex flex-wrap gap-2">
-                            {Object.entries(role.permissions).some(([_, enabled]) => enabled) ? (
+                            {Object.entries(role.permissions).some(([, enabled]) => enabled) ? (
                               Object.entries(role.permissions).map(([perm, enabled]) => (
                                 enabled && (
                                   <span key={perm} className="bg-indigo-50 text-indigo-700 px-3 py-1 text-xs rounded-full">

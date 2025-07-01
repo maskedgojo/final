@@ -81,7 +81,7 @@ export default function RegisterForm() {
       
       if (data.missingFields) {
         const missing = Object.entries(data.missingFields)
-          .filter(([_, value]) => value)
+          .filter(([, value]) => value)
           .map(([key]) => key)
         errorMessage = `Missing required fields: ${missing.join(', ')}`
       }
@@ -91,15 +91,18 @@ export default function RegisterForm() {
 
     toast.success(data.message || 'Registration successful!')
     router.push('/login?status=register-success')
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Registration error:', error)
     
     // Show user-friendly error message
-    let errorMessage = error.message || 'Registration failed'
-    
-    // Special handling for network errors
-    if (error.message.includes('Failed to fetch')) {
-      errorMessage = 'Network error. Please check your connection.'
+    let errorMessage = 'Registration failed'
+    if (error instanceof Error) {
+      errorMessage = error.message || errorMessage
+
+      // Special handling for network errors
+      if (error.message.includes('Failed to fetch')) {
+        errorMessage = 'Network error. Please check your connection.'
+      }
     }
     
     toast.error(errorMessage)

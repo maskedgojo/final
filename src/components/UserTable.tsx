@@ -3,17 +3,14 @@
 import { useState, useMemo, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
-import { useRouter } from 'next/navigation'
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import { format } from 'date-fns'
 import { ChevronDown } from 'lucide-react'
 import { useUsersContext } from '@/context/users-context'
 import { useRoleContext } from '@/context/role-context'
 
 export default function UserTable() {
-  const router = useRouter()
-  const { users, loading: userLoading, error, refetchUsers } = useUsersContext()
-  const { roles: allRoles, loading: roleLoading, refreshRoles } = useRoleContext()
+  const { users, loading: userLoading, refetchUsers } = useUsersContext()
+  const { roles: allRoles, loading: roleLoading } = useRoleContext()
 
   const [data, setData] = useState([])
   const [searchValue, setSearchValue] = useState('')
@@ -77,7 +74,7 @@ export default function UserTable() {
 
     setLoading(true)
     try {
-      const res = await axios.post('/api/users', {
+      await axios.post('/api/users', {
         ...form,
         dob: new Date(form.dob),
         roles: form.roles
@@ -88,6 +85,7 @@ export default function UserTable() {
       resetForm()
       setShowForm(false)
     } catch (err) {
+      console.error(err)
       toast.error('Add failed')
     } finally {
       setLoading(false)
@@ -113,13 +111,23 @@ export default function UserTable() {
       resetForm()
       setEditMode(null)
     } catch (err) {
+      console.error(err)
       toast.error('Update failed')
     } finally {
       setLoading(false)
     }
   }
 
-  const startEditing = (user: any) => {
+  type User = {
+    id: number
+    name?: string
+    email: string
+    dob: string | Date
+    address: string
+    userRoles?: { role: { id: number; name: string } }[]
+  }
+
+  const startEditing = (user: User) => {
     setEditMode(user.id)
     setForm({
       name: user.name || '',

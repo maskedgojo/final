@@ -10,12 +10,12 @@ export default function BlogPage() {
           <li>
             <h2 className="text-2xl font-semibold">🚀 Launching Our New Platform</h2>
             <p className="text-gray-600">June 25, 2025 · 2 min read</p>
-            <p className="mt-2 text-gray-700">We're excited to introduce our brand-new platform designed for performance and usability...</p>
+            <p className="mt-2 text-gray-700">We are excited to introduce our brand-new platform designed for performance and usability...</p>
           </li>
           <li>
             <h2 className="text-2xl font-semibold">💡 Tips to Improve Your Frontend</h2>
             <p className="text-gray-600">June 18, 2025 · 4 min read</p>
-            <p className="mt-2 text-gray-700">Want to make your web pages stand out? Here's a quick guide to modern UI design best practices...</p>
+            <p className="mt-2 text-gray-700">Want to make your web pages stand out? Here is a quick guide to modern UI design best practices...</p>
           </li>
         </ul>
       </section>

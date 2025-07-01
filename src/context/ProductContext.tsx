@@ -34,8 +34,12 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       const res = await axios.get('/api/products')
       setProducts(res.data)
       setError(null)
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch products')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Failed to fetch products')
+      }
     } finally {
       setLoading(false)
     }

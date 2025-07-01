@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { User, Mail, Shield, Save, Edit3, Loader2 } from 'lucide-react'
+import { User, Mail, Shield, Save, Edit3, Loader2, MapPin, Calendar } from 'lucide-react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useSession } from 'next-auth/react'
@@ -12,6 +12,8 @@ interface UserData {
   name: string
   email: string
   role: string
+  address: string
+  dob: string
   lastLogin?: string
 }
 
@@ -21,7 +23,9 @@ export default function ProfilePage() {
     id: '',
     name: '',
     email: '',
-    role: 'User'
+    role: 'User',
+    address: '',
+    dob: ''
   })
 
   const [loading, setLoading] = useState(false)
@@ -54,6 +58,8 @@ export default function ProfilePage() {
         name: data.name || '',
         email: data.email || '',
         role: data.role?.name || 'User',
+        address: data.address || '',
+        dob: data.dob ? new Date(data.dob).toISOString().split('T')[0] : '',
         lastLogin: data.lastLogin || ''
       })
 
@@ -81,6 +87,53 @@ export default function ProfilePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
     console.log("📝 Form data changed:", { ...formData, [e.target.name]: e.target.value })
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setLoading(true)
+
+  try {
+    const res = await fetch('/api/user/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        address: formData.address,
+        dob: formData.dob,
+      }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to update profile')
+    }
+
+    toast.success('Profile updated successfully!')
+
+    // Check if email changed from session
+    if (session?.user?.email && session.user.email !== formData.email) {
+      toast.info("Email updated. Please log in again.")
+      setTimeout(() => {
+        signOut()
+      }, 2000)
+      return
+    }
+
+    setIsEditing(false)
+    await update()
+
+  } catch (error) {
+    console.error('Error updating profile:', error)
+    toast.error(error instanceof Error ? error.message : 'Failed to update profile')
+  } finally {
+    setLoading(false)
+  }
+}
+
 
   const formatLastLogin = (dateString?: string) => {
     if (!dateString) return 'Never logged in'
@@ -118,24 +171,45 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            {!isEditing && (
+            {!isEditing ? (
               <button 
                 onClick={() => setIsEditing(true)} 
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
               >
                 <Edit3 size={16} /> Edit Profile
               </button>
+            ) : (
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setIsEditing(false)} 
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin h-4 w-4" />
+                  ) : (
+                    <Save size={16} />
+                  )}
+                  Save
+                </button>
+              </div>
             )}
           </div>
         </div>
 
         {/* Form */}
-        <form className="bg-white rounded-xl p-8 border border-gray-200 shadow space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl p-8 border border-gray-200 shadow space-y-6">
           <h2 className="text-lg font-semibold text-black">Profile Information</h2>
 
           {/* Name */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
               <User size={16} /> Full Name
             </label>
             <input
@@ -155,7 +229,7 @@ export default function ProfilePage() {
 
           {/* Email */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
               <Mail size={16} /> Email Address
             </label>
             <input
@@ -173,9 +247,48 @@ export default function ProfilePage() {
             />
           </div>
 
+          {/* Address */}
+          <div>
+            <label className="mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
+              <MapPin size={16} /> Address
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              disabled={!isEditing}
+              placeholder="Enter your address"
+              className={`w-full px-4 py-2 rounded-md text-amber-500 text-sm border ${
+                isEditing 
+                  ? 'border-blue-500 bg-white focus:ring-2 focus:ring-blue-200' 
+                  : 'border-gray-200 bg-gray-100'
+              } outline-none transition-colors`}
+            />
+          </div>
+
+          {/* Date of Birth */}
+          <div>
+            <label className="mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
+              <Calendar size={16} /> Date of Birth
+            </label>
+            <input
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full px-4 py-2 rounded-md text-amber-500 text-sm border ${
+                isEditing 
+                  ? 'border-blue-500 bg-white focus:ring-2 focus:ring-blue-200' 
+                  : 'border-gray-200 bg-gray-100'
+              } outline-none transition-colors`}
+            />
+          </div>
+
           {/* Role */}
           <div>
-            <label className="block mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
+            <label className="mb-1 text-sm font-medium text-gray-700 flex items-center gap-2">
               <Shield size={16} /> Role
             </label>
             <input

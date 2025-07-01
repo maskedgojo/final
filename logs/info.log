@@ -6,3 +6,11 @@ userId: 1
 ------------------------------------------------------------
 [2025-06-30T10:48:21.384Z] [INFO] [auth/signOut] User "sabarniklahiri@gmail.com" logged out
 ------------------------------------------------------------
+[2025-07-01T11:45:07.604Z] [INFO] [authOptions.signOut] User "sabarniklahiri@gmail.com" logged out
+------------------------------------------------------------
+[2025-07-01T11:45:24.524Z] [INFO] [authOptions.authorize] User "sabarniklahiri@gmail.in" authenticated successfully
+userId: 51
+role: Admin
+------------------------------------------------------------
+[2025-07-01T11:45:24.529Z] [INFO] [authOptions.signIn] User "sabarniklahiri@gmail.in" logged in
+------------------------------------------------------------

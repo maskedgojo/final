@@ -2,20 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { useRoleContext } from '@/context/role-context'
 import TableSkeleton from '@/components/ui/TableSkeleton' 
 
-type Role = {
-  id: number
-  name: string
-  description?: string
-  permissions: Record<string, boolean>
-}
 
 export default function RoleTablePage() {
-  const router = useRouter()
   const { roles, loading, refreshRoles } = useRoleContext()
 
   const [allPermissions, setAllPermissions] = useState<string[]>([])
@@ -32,7 +24,7 @@ export default function RoleTablePage() {
       try {
         const res = await axios.get('/api/permissions')
         setAllPermissions(res.data)
-      } catch (error) {
+      } catch {
         toast.error('Failed to load permissions')
       }
     }
@@ -76,7 +68,7 @@ export default function RoleTablePage() {
       await refreshRoles()
       setForm({ name: '', description: '', selectedPermissions: [] })
       setEditId(null)
-    } catch (error) {
+    } catch {
       toast.error('Save failed')
     }
   }
@@ -91,7 +83,7 @@ export default function RoleTablePage() {
         setForm({ name: '', description: '', selectedPermissions: [] })
         setEditId(null)
       }
-    } catch (error) {
+    } catch {
       toast.error('Delete failed')
     }
   }
@@ -243,7 +235,7 @@ if (loading) {
                             name: role.name,
                             description: role.description || '',
                             selectedPermissions: Object.entries(role.permissions)
-                              .filter(([_, enabled]) => enabled)
+                              .filter(([, enabled]) => enabled)
                               .map(([perm]) => perm)
                           })
                         }}

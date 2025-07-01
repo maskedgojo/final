@@ -4,22 +4,23 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export default function LoadingSpinner({
-  size = "md",
-  className = "",
-}: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: "h-5 w-5",
-    md: "h-8 w-8",
-    lg: "h-12 w-12",
-    xl: "h-16 w-16",
-  };
+export default function LoadingSpinner({ size = "md", className = "" }: LoadingSpinnerProps) {
 
   return (
    
-<div className="mx-auto w-full max-w-sm rounded-md border border-blue-300 p-4">
+<div className={`mx-auto w-full max-w-sm rounded-md border border-blue-300 p-4 ${className}`}>
   <div className="flex animate-pulse space-x-4">
-    <div className="size-10 rounded-full bg-gray-200"></div>
+    <div
+      className={
+        size === "sm"
+          ? "size-6"
+          : size === "lg"
+          ? "size-14"
+          : size === "xl"
+          ? "size-20"
+          : "size-10"
+      + " rounded-full bg-gray-200"}
+    ></div>
     <div className="flex-1 space-y-6 py-1">
       <div className="h-2 rounded bg-gray-200"></div>
       <div className="space-y-3">

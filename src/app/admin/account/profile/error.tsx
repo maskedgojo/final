@@ -20,7 +20,7 @@ export default function Error({
     if (error.message.includes('authenticated')) {
       router.push('/login')
     }
-  }, [error])
+  }, [error, router])
 
   return (
     <div className="min-h-screen p-8 bg-[#F5F6FA] flex items-center justify-center">

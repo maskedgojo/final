@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
 // app/api/users/route.ts or wherever your handler is
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const users = await prisma.user.findMany({
       select: {

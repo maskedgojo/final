@@ -109,7 +109,7 @@ export default function AdminHome() {
             <h1 className="text-3xl font-bold text-gray-900">
               {loading ? 'Loading...' : `Welcome back, ${user?.name || 'Admin'} 👋`}
             </h1>
-            <p className="text-gray-600 mt-2">Here's what's happening with your platform today.</p>
+            <p className="text-gray-600 mt-2">Here is what is happening with your platform today.</p>
           </div>
           <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
             <Calendar className="w-4 h-4" />
@@ -200,7 +200,7 @@ export default function AdminHome() {
         </div>
 
         <div className="overflow-hidden">
-          {recentOrders.map((order, index) => (
+          {recentOrders.map((order,) => (
             <div key={order.id} className="p-6 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors duration-150">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">

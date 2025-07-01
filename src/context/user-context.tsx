@@ -36,9 +36,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const res = await axios.get('/api/user/profile')
       setUser(res.data)
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setUser(null)
-      setError(err.message || 'Failed to fetch user')
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Failed to fetch user')
+      }
     } finally {
       setLoading(false)
     }

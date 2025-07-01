@@ -36,8 +36,12 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       const res = await axios.get('/api/users') // Make sure this API exists
       setUsers(res.data)
       setError(null)
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch users')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError('Failed to fetch users')
+      }
       setUsers([])
     } finally {
       setLoading(false)

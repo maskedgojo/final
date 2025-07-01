@@ -37,8 +37,8 @@ export function logToFile(
     origin?: string;
     errorStack?: string;
     fileLocation?: string;
-    req?: Request | { url?: string; method?: string; headers?: any };
-    [key: string]: any; // ✅ Allow custom metadata (userId, email, etc.)
+    req?: Request | { url?: string; method?: string; headers?: Record<string, unknown> };
+    [key: string]: unknown; // ✅ Allow custom metadata (userId, email, etc.)
   }
 ) {
   const timestamp = new Date().toISOString();

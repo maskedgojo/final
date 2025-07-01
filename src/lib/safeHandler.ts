@@ -8,7 +8,7 @@ export function withSafeHandler(
   return async (req: NextRequest) => {
     try {
       return await handler(req);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // --- Extract file location from stack if available
       const stack = error?.stack || '';
       const locationMatch = stack.match(/\((.*?):(\d+):(\d+)\)/);

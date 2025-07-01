@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+
 import { withSafeHandler } from '@/lib/safeHandler';
 
 const handler = async () => {
