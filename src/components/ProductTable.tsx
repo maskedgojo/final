@@ -57,7 +57,8 @@ export default function ProductTable() {
         p.category.toLowerCase().includes(searchLower) ||
         p.price.toString().includes(searchValue) ||
         p.id.toString().includes(searchValue) ||
-        p.createdAt.toISOString().includes(searchValue)
+        new Date(p.createdAt).toISOString().includes(searchValue)
+
       )
     })
   }, [data, searchValue])
@@ -70,6 +71,9 @@ export default function ProductTable() {
       if (deletionTimerRef.current) clearTimeout(deletionTimerRef.current)
     }
   }, [])
+  useEffect(() => {
+  router.refresh?.() // For App Router hydration if needed
+}, [products, router])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -99,32 +103,41 @@ export default function ProductTable() {
   // ========================================
   // CRUD HANDLERS
   // ========================================
-  const handleAddProduct = async () => {
-    if (!form.name || !form.price || !form.category) {
-      toast.error('Name, price and category are required')
-      return
-    }
-    
-    setLoading(true)
-    try {
-      const product = await addProduct({ ...form, price: parseFloat(form.price) })
-      setEditMode(product.id)
-      setForm({
-        name: product.name,
-        description: product.description || '',
-        price: product.price.toString(),
-        category: product.category,
-      })
-      const params = new URLSearchParams()
-      params.set('edit', product.id.toString())
-      router.replace(`?${params.toString()}`, { scroll: false })
-      toast.success('Product added successfully')
-    } catch {
-      toast.error('Add failed')
-    } finally {
-      setLoading(false)
-    }
+ const handleAddProduct = async () => {
+  if (!form.name || !form.price || !form.category) {
+    toast.error('Name, price and category are required')
+    return
   }
+
+  setLoading(true)
+  try {
+    const product = await addProduct({
+      ...form,
+      price: parseFloat(form.price),
+    })
+
+    if (!product?.id) throw new Error('Invalid product response')
+
+    setEditMode(product.id)
+    setForm({
+      name: product.name,
+      description: product.description || '',
+      price: product.price.toString(),
+      category: product.category,
+    })
+
+    const params = new URLSearchParams()
+    params.set('edit', product.id.toString())
+    router.replace(`?${params.toString()}`, { scroll: false })
+
+    toast.success('Product added successfully')
+  } catch (err) {
+    console.error('Add failed:', err)
+    toast.error('Add failed')
+  } finally {
+    setLoading(false)
+  }
+}
 
   const handleUpdateProduct = async (id: number) => {
     if (!form.name || !form.price || !form.category) {
@@ -139,7 +152,7 @@ export default function ProductTable() {
       params.set('edit', id.toString())
       router.replace(`?${params.toString()}`, { scroll: false })
       toast.success('Product updated successfully')
-    } catch {
+    } catch{
       toast.error('Update failed')
     } finally {
       setLoading(false)
@@ -172,7 +185,7 @@ export default function ProductTable() {
       }
 
       toast.success('Product deleted successfully')
-    } catch {
+    } catch{
       toast.error('Delete failed')
     }
   }

@@ -29,31 +29,62 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchProducts = async () => {
-    try {
-      const res = await axios.get('/api/products')
-      setProducts(res.data)
-      setError(null)
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Failed to fetch products')
-      }
-    } finally {
-      setLoading(false)
-    }
+const fetchProducts = async () => {
+  try {
+    const res = await axios.get('/api/products')
+    const productsWithDates = res.data.map((p: Product) => ({
+      ...p,
+      createdAt: new Date(p.createdAt),
+    }))
+    setProducts(productsWithDates)
+    setError(null)
+  } catch (err: unknown) {
+    setError(
+      typeof err === 'object' && err !== null && 'message' in err
+        ? String((err as { message: unknown }).message)
+        : 'Failed to fetch products'
+    )
+  } finally {
+    setLoading(false)
   }
+}
 
-  const addProduct = async (product: Omit<Product, 'id' | 'createdAt'>) => {
-    try {
-      const res = await axios.post('/api/products', product)
-      setProducts(prev => [res.data, ...prev])
-    } catch (err) {
-      console.error('Add product error:', err)
-      throw err
+const addProduct = async (newProduct: {
+  name: string
+  description?: string
+  price: number
+  category: string
+}) => {
+  try {
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProduct),
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      throw new Error(errorData.message || 'Failed to add product')
     }
+
+    const productRaw = await res.json()
+
+    // Parse createdAt to Date object
+    const product: Product = {
+      ...productRaw,
+      createdAt: new Date(productRaw.createdAt),
+    }
+
+    // Add product at the start (since you're ordering by createdAt desc)
+    setProducts(prev => [product, ...prev])
+
+    return product
+  } catch (error) {
+    console.error('Error in addProduct:', error)
+    throw error
   }
+}
+
 
   const updateProduct = async (id: number, updatedProduct: Partial<Product>) => {
     try {
